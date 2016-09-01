@@ -1,10 +1,10 @@
 #include <stdio.h>
 
 // typedef struct for the cell of a directed, single linked list
-typedef struct dlist {
-  *void data;
-  struct dlist *next;
-};
+typedef struct node {
+  *void value;
+  struct node *next;
+} Node;
 
 // constructor of empty list
 
