@@ -49,7 +49,10 @@ list_position list_insert(list *l,list_position p,data d) {
 };
 
 // inspect list element
-data list_inspect(list *l, list_position p);
+data list_inspect(list *l, list_position p) {
+  return p->data;
+}
+;
 
 // remove list element
 list_position list_remove(list *l, list_position p) {
@@ -68,4 +71,10 @@ void list_free(list *l);
 
 
 // check if end of list
-bool list_isEnd(list *l, list_position p);
+bool list_isEnd(list *l, list_position p){
+  if ( p->next == NULL) {
+    return true;
+  } else {
+    return false;
+  }
+};
