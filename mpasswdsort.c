@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include "list.h"
 #include <string.h>
+#include <stdio.h>
 
 typedef struct person {
   char firstname[12];
   char lastname[12];
 } person;
 
-typedef struct passwordEntry {
+typedef struct passwordRecord {
     char* username;
     char* password;
     int UID;
@@ -15,30 +16,40 @@ typedef struct passwordEntry {
     int GECOS;
     char* path;
     char* shell;
-};
+} passwordRecord;
 
 #define SIZEOFFIRSTNAME 12
 #define SIZEOFLASTNAME 12
 #define BUFFERSIZE 1023
 
+FILE* getInputStream(int argc, char *argv[]){
+    if(argc ==1){
+        return stdin;
+    } else if (argc == 2) {
+        FILE * inFile = fopen(argv[1], "r");
+        return inFile;
+    }
+    return stdin;
+}
+
+void checkIndata(char* row) {
+
+    printf("%s\n", strchr(row, 58) );
+}
+
+
 int main (int argc, char *argv[]){
 
-    //Check if there is a command line argument
-
-
-    //read data from file
-
-
-    //Read Data from stdin
-    // preliminary code to read from stdin
-    if(argc==1){
-        char buffer[BUFFERSIZE];
-        while(fgets(buffer, BUFFERSIZE , stdin) != NULL)
-        {
-            printf("%s", buffer);
-        }
-
+    char buffer[BUFFERSIZE];
+    FILE *inStream = getInputStream(argc, argv);
+    while(fgets(buffer, BUFFERSIZE, inStream)){
+        //printf("%s", buffer);
+        checkIndata(buffer);
     }
+
+    fclose(inStream);
+
+
 
     // function that takes a whole line as input and validates the passwd format
     // username:password:UID:GID:GECOS:directory:shell
