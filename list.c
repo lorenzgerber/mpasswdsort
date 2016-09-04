@@ -6,7 +6,8 @@
 list *list_empty(void) {
     list *newList=malloc(sizeof(struct list));
     newList->head=malloc(sizeof(element)); //huvudet för listan
-    newList->head->next=NULL;
+    newList->head->next=newList->head;
+    newList->head->previous=newList->head;
     newList->freeFunc=NULL;
     return newList;
 }
@@ -33,7 +34,7 @@ list_position list_previous(list *l, list_position p){
 
 // is list empty
 bool list_isEmpty(list *l) {
-    return (l->head->next == NULL);
+    return (l->head->next == l->head);
 }
 
 // insert list element
@@ -51,8 +52,7 @@ list_position list_insert(list *l,list_position p,data d) {
 // inspect list element
 data list_inspect(list *l, list_position p) {
   return p->data;
-}
-;
+};
 
 // remove list element
 list_position list_remove(list *l, list_position p) {
@@ -72,7 +72,7 @@ void list_free(list *l);
 
 // check if end of list
 bool list_isEnd(list *l, list_position p){
-  if ( p->next == NULL) {
+  if ( p->next == l->head) {
     return true;
   } else {
     return false;
