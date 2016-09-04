@@ -7,6 +7,16 @@ typedef struct person {
   char lastname[12];
 } person;
 
+typedef struct passwordEntry {
+    char* username;
+    char* password;
+    int UID;
+    int GID;
+    int GECOS;
+    char* path;
+    char* shell;
+};
+
 #define SIZEOFFIRSTNAME 12
 #define SIZEOFLASTNAME 12
 #define BUFFERSIZE 1023
