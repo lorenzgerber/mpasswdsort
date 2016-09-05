@@ -2,6 +2,7 @@
 #include "list.h"
 #include <string.h>
 #include <stdio.h>
+#include <assert.h>
 
 typedef struct person {
   char firstname[12];
@@ -35,10 +36,20 @@ FILE* getInputStream(int argc, char *argv[]){
 void checkIndata(char* row) {
 
     printf("%s\n", strchr(row, 58) );
+    char *token;
+
+    strdup(row);
+    assert(row != NULL);
+
+    while ((token = strsep(&row, ":")) != NULL)
+        printf("%s\n", token);
+
+    free(token);
+
 }
 
 int checkNumberOfEntries(char* row) {
-    
+    return 1;
 }
 
 int main (int argc, char *argv[]){
