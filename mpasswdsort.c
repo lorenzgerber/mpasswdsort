@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdbool.h>
 
 typedef struct person {
   char firstname[12];
@@ -33,18 +34,82 @@ FILE* getInputStream(int argc, char *argv[]){
     return stdin;
 }
 
+bool checkForChar(char* current, char* separator){
+    char *found = strstr(current, separator);
+    if(found == current){
+        return true;
+    }
+    return false;
+}
+
+char* findSeparator(char* current, char*separator){
+    char* pos = strstr(current, separator);
+    if (pos == NULL){
+        pos = current + strlen(current) - 1;
+    }
+    return pos;
+}
+
+char* substring(char* start, char* end){
+    int length = 0;
+    while (end > start){
+        end -= 1;
+        length++;
+        //printf("%d\n", length);
+    }
+
+    return strndup(start, length);
+}
+
+
 void checkIndata(char* row) {
+    char* separator = ":";
+    char* result;
 
-    printf("%s\n", strchr(row, 58) );
-    char *token;
+    if(checkForChar(row, separator))
+        printf("the first is a semicolon\n");
 
-    strdup(row);
-    assert(row != NULL);
+    char*start = row;
+    char*end = findSeparator(start, separator);
+    result =  substring(start, end);
+    printf("%s\n", result);
+    free(result);
 
-    while ((token = strsep(&row, ":")) != NULL)
-        printf("%s\n", token);
+    start = end + 1;
+    end = findSeparator(start, separator);
+    result =  substring(start, end);
+    printf("%s\n", result);
+    free(result);
 
-    free(token);
+    start = end + 1;
+    end = findSeparator(start, separator);
+    result =  substring(start, end);
+    printf("%s\n", result);
+    free(result);
+
+    start = end + 1;
+    end = findSeparator(start, separator);
+    result =  substring(start, end);
+    printf("%s\n", result);
+    free(result);
+
+    start = end + 1;
+    end = findSeparator(start, separator);
+    result =  substring(start, end);
+    printf("%s\n", result);
+    free(result);
+
+    start = end + 1;
+    end = findSeparator(start, separator);
+    result =  substring(start, end);
+    printf("%s\n", result);
+    free(result);
+
+    start = end + 1;
+    end = findSeparator(start, separator);
+    result =  substring(start, end);
+    printf("%s\n", result);
+    free(result);
 
 }
 
@@ -109,7 +174,7 @@ int main (int argc, char *argv[]){
     list_position second = list_insert(test, first, fritz );
 
     data out = list_inspect(test, first);
-    printf("%s \n", out);
+    printf("%s \n", ((struct person*)out)->firstname);
 
 
 }
