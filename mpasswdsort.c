@@ -145,12 +145,14 @@ int main (int argc, char *argv[]){
     // travers list and output to std out
 
 
+
     list *test = list_empty();
     if (list_isEmpty(test)){
       printf("Yes the list is empty\n");
     } else {
       printf("No the list is not empty\n");
     }
+
 
 
 
@@ -173,8 +175,16 @@ int main (int argc, char *argv[]){
     list_position first = list_insert(test, list_first(test), lorenz);
     list_position second = list_insert(test, first, fritz );
 
-    data out = list_inspect(test, first);
-    printf("%s \n", ((struct person*)out)->firstname);
+    list_remove(test, first);
+    list_remove(test, second);
+    //data out = list_inspect(test, first);
+    //printf("%s \n", ((struct person*)out)->firstname);
+
+    free(lorenz);
+    free(fritz);
+
+    list_free(test);
+
 
 
 }
