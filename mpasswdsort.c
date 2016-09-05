@@ -37,6 +37,9 @@ void checkIndata(char* row) {
     printf("%s\n", strchr(row, 58) );
 }
 
+int checkNumberOfEntries(char* row) {
+    
+}
 
 int main (int argc, char *argv[]){
 
