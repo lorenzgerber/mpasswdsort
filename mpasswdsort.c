@@ -12,18 +12,16 @@ typedef struct person {
 
 typedef struct passwordRecord {
     char* username;
-    char* password;
-    int UID;
-    int GID;
-    int GECOS;
-    char* path;
-    char* shell;
+    unsigned int UID;
 } passwordRecord;
 
 #define SIZEOFFIRSTNAME 12
 #define SIZEOFLASTNAME 12
 #define BUFFERSIZE 1023
 
+/*
+ * Opens either a file or stdin for reading
+ */
 FILE* getInputStream(int argc, char *argv[]){
     if(argc ==1){
         return stdin;
@@ -34,6 +32,9 @@ FILE* getInputStream(int argc, char *argv[]){
     return stdin;
 }
 
+/*
+ * Checks if the current char is separator or not. *Obsolete/overkill*
+ */
 bool checkForChar(char* current, char* separator){
     char *found = strstr(current, separator);
     if(found == current){
@@ -42,6 +43,9 @@ bool checkForChar(char* current, char* separator){
     return false;
 }
 
+/*
+ * returns the next position of the separator in current
+ */
 char* findSeparator(char* current, char*separator){
     char* pos = strstr(current, separator);
     if (pos == NULL){
@@ -50,6 +54,9 @@ char* findSeparator(char* current, char*separator){
     return pos;
 }
 
+/*
+ * returns a pointer to the copy of substring from start to end
+ */
 char* substring(char* start, char* end){
     int length = 0;
     while (end > start){
@@ -65,25 +72,46 @@ char* substring(char* start, char* end){
 void checkIndata(char* row) {
     char* separator = ":";
     char* result;
+    int rowError = 0;
 
-    if(checkForChar(row, separator))
-        printf("the first is a semicolon\n");
+    if(checkForChar(row, separator)){
+        fprintf(stderr, "username is missing\n");
+        rowError = -1;
+    }
 
     char*start = row;
     char*end = findSeparator(start, separator);
-    result =  substring(start, end);
-    printf("%s\n", result);
-    free(result);
+
+    // check for the user name
+    if (rowError == 0){
+        result =  substring(start, end);
+        if(strlen(result) > 32){
+            fprintf(stderr, "username too long\n");
+            rowError = -1;
+        }
+        printf("%s\n", result);
+        free(result);
+    }
+
+
+    // check if there is a password entry
+    if (rowError == 0){
+        start = end + 1;
+        end = findSeparator(start, separator);
+        result =  substring(start, end);
+        if(strlen(result) == 0){
+            fprintf(stderr, "password is empty");
+            rowError = -1;
+        }
+        printf("%s\n", result);
+        free(result);
+    }
+
 
     start = end + 1;
     end = findSeparator(start, separator);
     result =  substring(start, end);
-    printf("%s\n", result);
-    free(result);
-
-    start = end + 1;
-    end = findSeparator(start, separator);
-    result =  substring(start, end);
+    long test = strtol(result, NULL, 10);
     printf("%s\n", result);
     free(result);
 
