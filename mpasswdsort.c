@@ -68,16 +68,37 @@ char* substring(char* start, char* end){
     return strndup(start, length);
 }
 
+int checkNumberOfSeparators(char* string, char*separator){
+    int counter = 0;
+    char*current = string;
+    while(findSeparator(current, separator) != (string + strlen(string) - 1)){
+        counter++;
+        current = findSeparator(current, separator) + 1;
+    }
+    return counter;
+}
 
-void checkIndata(char* row) {
+
+void checkIndata(char* row, list* passwdList) {
     char* separator = ":";
     char* result;
+    char* username;
+    int UID;
     int rowError = 0;
 
-    if(checkForChar(row, separator)){
-        fprintf(stderr, "username is missing\n");
+
+    if(checkNumberOfSeparators(row, separator) < 6){
+        fprintf(stderr, "wrong structure\n");
         rowError = -1;
     }
+
+    if(rowError == 0){
+        if(checkForChar(row, separator)){
+            fprintf(stderr, "username is missing\n");
+            rowError = -1;
+        }
+    }
+
 
     char*start = row;
     char*end = findSeparator(start, separator);
@@ -88,8 +109,10 @@ void checkIndata(char* row) {
         if(strlen(result) > 32){
             fprintf(stderr, "username too long\n");
             rowError = -1;
+        } else {
+            username = strdup(result);
         }
-        printf("%s\n", result);
+        //printf("%s\n", result);
         free(result);
     }
 
@@ -100,44 +123,90 @@ void checkIndata(char* row) {
         end = findSeparator(start, separator);
         result =  substring(start, end);
         if(strlen(result) == 0){
-            fprintf(stderr, "password is empty");
+            fprintf(stderr, "password is empty\n");
             rowError = -1;
         }
-        printf("%s\n", result);
+        //printf("%s\n", result);
         free(result);
     }
 
 
-    start = end + 1;
-    end = findSeparator(start, separator);
-    result =  substring(start, end);
-    long test = strtol(result, NULL, 10);
-    printf("%s\n", result);
-    free(result);
+    if(rowError == 0){
+        start = end + 1;
+        end = findSeparator(start, separator);
+        result =  substring(start, end);
+        long test = strtol(result, NULL, 10);
+        if(test < 0){
+            fprintf(stderr, "negativ UID value\n");
+            rowError = -1;
+        } else {
+            UID = test;
+        }
+        //printf("%ld\n", test);
+        free(result);
+    }
 
-    start = end + 1;
-    end = findSeparator(start, separator);
-    result =  substring(start, end);
-    printf("%s\n", result);
-    free(result);
 
-    start = end + 1;
-    end = findSeparator(start, separator);
-    result =  substring(start, end);
-    printf("%s\n", result);
-    free(result);
+    if(rowError == 0){
+        start = end + 1;
+        end = findSeparator(start, separator);
+        result =  substring(start, end);
+        long test = strtol(result, NULL, 10);
+        if(test < 0){
+            fprintf(stderr, "negativ GID value\n");
+            rowError = -1;
+        }
+        //printf("%s\n", result);
+        free(result);
+    }
 
-    start = end + 1;
-    end = findSeparator(start, separator);
-    result =  substring(start, end);
-    printf("%s\n", result);
-    free(result);
 
-    start = end + 1;
-    end = findSeparator(start, separator);
-    result =  substring(start, end);
-    printf("%s\n", result);
-    free(result);
+    // not needed when checked first for
+    // correct number of separators
+    if(rowError == 0){
+        start = end + 1;
+        end = findSeparator(start, separator);
+        result =  substring(start, end);
+        //printf("%s\n", result);
+        free(result);
+    }
+
+
+
+    // check if path is empty
+    if (rowError == 0){
+        start = end + 1;
+        end = findSeparator(start, separator);
+        result =  substring(start, end);
+        if(strlen(result) == 0){
+            fprintf(stderr, "path is empty\n");
+            rowError = -1;
+        }
+        //printf("%s\n", result);
+        free(result);
+    }
+
+    // check if shell is a password entry
+    if (rowError == 0){
+        start = end + 1;
+        end = findSeparator(start, separator);
+        result =  substring(start, end);
+        if(strlen(result) == 0){
+            fprintf(stderr, "shell is empty\n");
+            rowError = -1;
+        }
+        //printf("%s\n", result);
+        free(result);
+    }
+
+    if(rowError == 0){
+        printf("%s:%d\n", username, UID);
+        passwordRecord *insertionRecord = malloc(sizeof(passwordRecord) * 1);
+        insertionRecord->username = username;
+        insertionRecord->UID = UID;
+        list_insert(passwdList, list_first(passwdList),insertionRecord);
+    }
+
 
 }
 
@@ -147,11 +216,12 @@ int checkNumberOfEntries(char* row) {
 
 int main (int argc, char *argv[]){
 
+    list *passwdList = list_empty();
     char buffer[BUFFERSIZE];
     FILE *inStream = getInputStream(argc, argv);
     while(fgets(buffer, BUFFERSIZE, inStream)){
         //printf("%s", buffer);
-        checkIndata(buffer);
+        checkIndata(buffer, passwdList);
     }
 
     fclose(inStream);
@@ -174,8 +244,8 @@ int main (int argc, char *argv[]){
 
 
 
-    list *test = list_empty();
-    if (list_isEmpty(test)){
+
+    if (list_isEmpty(passwdList)){
       printf("Yes the list is empty\n");
     } else {
       printf("No the list is not empty\n");
@@ -185,6 +255,7 @@ int main (int argc, char *argv[]){
 
 
 
+    /*
     person* lorenz = malloc(sizeof(person) * 1);
     memset(lorenz->firstname,'\0',SIZEOFFIRSTNAME);
     strcpy(lorenz->firstname,"Lorenz");
@@ -212,6 +283,7 @@ int main (int argc, char *argv[]){
     free(fritz);
 
     list_free(test);
+     */
 
 
 
