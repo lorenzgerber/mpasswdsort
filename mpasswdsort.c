@@ -1,23 +1,25 @@
 #include <stdio.h>
 #include "list.h"
 #include <string.h>
-#include <stdio.h>
-#include <assert.h>
-#include <stdbool.h>
 
-typedef struct person {
-  char firstname[12];
-  char lastname[12];
-} person;
 
 typedef struct passwordRecord {
     char* username;
     unsigned int UID;
 } passwordRecord;
 
-#define SIZEOFFIRSTNAME 12
-#define SIZEOFLASTNAME 12
 #define BUFFERSIZE 1023
+
+
+/*
+ * function to free the allocated memory
+ */
+void passwordRecord_free(void *recordToFree){
+    passwordRecord *record = (passwordRecord*)recordToFree;
+    free(record->username);
+    free(record);
+}
+
 
 /*
  * Opens either a file or stdin for reading
@@ -27,6 +29,19 @@ FILE* getInputStream(int argc, char *argv[]){
         return stdin;
     } else if (argc == 2) {
         FILE * inFile = fopen(argv[1], "r");
+        if ( !inFile ){
+            fprintf(stderr, "File could not be opended\n");
+        } else {
+
+            fseek(inFile, 0, SEEK_END);
+            unsigned long len = (unsigned long)ftell(inFile);
+            rewind(inFile);
+            // six separators would be need at least to proceed and fail in the further checks
+            if(len < 6) {
+                fclose(inFile);
+                exit(0);
+            }
+        };
         return inFile;
     }
     return stdin;
@@ -78,8 +93,20 @@ int checkNumberOfSeparators(char* string, char*separator){
     return counter;
 }
 
+void listToStdOut(list *outputList){
+    list_position currentPosition = list_first(outputList);
+    while(list_isEnd(outputList, currentPosition) == false){
+        data currentData = list_inspect(outputList, currentPosition);
+        printf("%d:%s\n", ((passwordRecord*)currentData)->UID, ((passwordRecord*)currentData)->username);
+        currentPosition = list_next(outputList, currentPosition);
+    }
+    // output last element
+    data currentData = list_inspect(outputList, currentPosition);
+    printf("%d:%s\n", ((passwordRecord*)currentData)->UID, ((passwordRecord*)currentData)->username);
+}
 
-void checkIndata(char* row, list* passwdList) {
+
+int checkIndata(char* row, list* passwdList) {
     char* separator = ":";
     char* result;
     char* username;
@@ -201,7 +228,7 @@ void checkIndata(char* row, list* passwdList) {
 
     // insertion sort into list
     if(rowError == 0){
-        printf("%s:%d\n", username, UID);
+        //printf("%s:%d\n", username, UID);
         passwordRecord *insertionRecord = malloc(sizeof(passwordRecord) * 1);
         insertionRecord->username = username;
         insertionRecord->UID = UID;
@@ -220,85 +247,40 @@ void checkIndata(char* row, list* passwdList) {
 
         }
 
+
     }
-
-
+    if (rowError == 0){
+        return 1;
+    }
+    return 0;
 }
 
-int checkNumberOfEntries(char* row) {
-    return 1;
-}
+
+
 
 int main (int argc, char *argv[]){
 
     list *passwdList = list_empty();
+    list_setMemHandler(passwdList, passwordRecord_free);
     char buffer[BUFFERSIZE];
     FILE *inStream = getInputStream(argc, argv);
+    int successfulRows;
+    int processedRows;
+
     while(fgets(buffer, BUFFERSIZE, inStream)){
+        processedRows++;
         //printf("%s", buffer);
-        checkIndata(buffer, passwdList);
+        successfulRows = successfulRows + checkIndata(buffer, passwdList);
     }
+
+    if (successfulRows > 0){
+        listToStdOut(passwdList);
+    }
+
+    list_free(passwdList);
 
     fclose(inStream);
 
-
-
-    // function that takes a whole line as input and validates the passwd format
-    // username:password:UID:GID:GECOS:directory:shell
-    // check username not empty and not longer than 32 chars
-    // check UID not negative
-    // check GID not negative
-    // check directory not empty
-    // check shell not empty
-
-    // write data in list
-
-    // sort list
-
-    // travers list and output to std out
-
-
-
-
-    if (list_isEmpty(passwdList)){
-      printf("Yes the list is empty\n");
-    } else {
-      printf("No the list is not empty\n");
-    }
-
-
-
-
-
-    /*
-    person* lorenz = malloc(sizeof(person) * 1);
-    memset(lorenz->firstname,'\0',SIZEOFFIRSTNAME);
-    strcpy(lorenz->firstname,"Lorenz");
-
-    memset(lorenz->lastname, '\0', SIZEOFLASTNAME);
-    strcpy(lorenz->lastname, "Gerber");
-
-    person* fritz = malloc(sizeof(person) *1);
-    memset(fritz->firstname,'\0',SIZEOFFIRSTNAME);
-    strcpy(fritz->firstname,"Fritz");
-
-    memset(fritz->lastname, '\0', SIZEOFLASTNAME);
-    strcpy(fritz->lastname, "Meier");
-
-
-    list_position first = list_insert(test, list_first(test), lorenz);
-    list_position second = list_insert(test, first, fritz );
-
-    list_remove(test, first);
-    list_remove(test, second);
-    //data out = list_inspect(test, first);
-    //printf("%s \n", ((struct person*)out)->firstname);
-
-    free(lorenz);
-    free(fritz);
-
-    list_free(test);
-     */
 
 
 

@@ -35,6 +35,9 @@ void list_setMemHandler(list *l, memFreeFunc *f);
 // return first position
 list_position list_first(list *l);
 
+// reutrn last position
+list_position list_last(list *l);
+
 // get next position
 list_position list_next(list *l, list_position p);
 
@@ -48,7 +51,7 @@ bool list_isEmpty(list *l);
 list_position list_insert(list *l,list_position p,data d);
 
 // inspect list element
-data list_inspect(list *l, list_position p);
+data* list_inspect(list *l, list_position p);
 
 // remove list element
 list_position list_remove(list *l, list_position p);

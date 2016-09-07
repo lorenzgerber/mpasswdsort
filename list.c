@@ -14,12 +14,19 @@ list *list_empty(void) {
 
 
 // set mem handler
-void list_setMemHandler(list *l, memFreeFunc *f);
+void list_setMemHandler(list *l, memFreeFunc *f){
+    l->freeFunc=f;
+}
 
 
 // return first position
 list_position list_first(list *l){
     return l->head->next;
+}
+
+// return last position
+list_position list_last(list *l){
+    return l->head->previous;
 }
 
 // get next position
@@ -50,24 +57,27 @@ list_position list_insert(list *l,list_position p,data d) {
 };
 
 // inspect list element
-data list_inspect(list *l, list_position p) {
+data* list_inspect(list *l, list_position p) {
   return p->data;
 };
 
 // remove list element
 list_position list_remove(list *l, list_position p) {
-    list_position afterRemove=p->next;
+    list_position beforeRemove=p->previous;
     p->previous->next=p->next;
     p->next->previous=p->previous;
     if(l->freeFunc!=NULL)
         l->freeFunc(p->data);
     free(p);
-    return afterRemove;
+    return beforeRemove;
 };
 
 // free memory
 void list_free(list *l){
-
+    list_position current = list_last(l);
+    while (list_isEmpty(l) != true){
+        current = list_remove(l, current);
+    }
     free(l->head);
     free(l);
 };
