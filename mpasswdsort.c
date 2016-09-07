@@ -199,12 +199,27 @@ void checkIndata(char* row, list* passwdList) {
         free(result);
     }
 
+    // insertion sort into list
     if(rowError == 0){
         printf("%s:%d\n", username, UID);
         passwordRecord *insertionRecord = malloc(sizeof(passwordRecord) * 1);
         insertionRecord->username = username;
         insertionRecord->UID = UID;
-        list_insert(passwdList, list_first(passwdList),insertionRecord);
+        if(list_isEmpty(passwdList)){
+            list_insert(passwdList, list_first(passwdList),(data)insertionRecord);
+        } else {
+            list_position current = list_first(passwdList);
+            while(((passwordRecord*)list_inspect(passwdList, current))->UID < insertionRecord->UID){
+             current = list_next(passwdList, current);
+                // have to improve that one...
+                if(current == list_previous(passwdList, list_first(passwdList))){
+                    break;
+                }
+            }
+            list_insert(passwdList, current, (data)insertionRecord);
+
+        }
+
     }
 
 
