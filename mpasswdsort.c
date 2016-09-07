@@ -236,7 +236,7 @@ int checkIndata(char* row, list* passwdList) {
             list_insert(passwdList, list_first(passwdList),(data)insertionRecord);
         } else {
             list_position current = list_first(passwdList);
-            while(((passwordRecord*)list_inspect(passwdList, current))->UID < insertionRecord->UID){
+            while(((passwordRecord*)list_inspect(passwdList, current))->UID > insertionRecord->UID){
              current = list_next(passwdList, current);
                 // have to improve that one...
                 if(current == list_previous(passwdList, list_first(passwdList))){
