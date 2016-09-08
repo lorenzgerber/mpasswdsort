@@ -63,6 +63,7 @@ FILE* getInputStream(int argc, char *argv[]){
             // proceed and fail in the further checks
             if(len < 6) {
                 fclose(inFile);
+
                 exit(0);
             }
         };
@@ -158,15 +159,15 @@ int checkNumberOfSeparators(char* string, char*separator){
  *
  */
 void listToStdOut(list *outputList){
-    list_position currentPosition = list_first(outputList);
-    while(list_isEnd(outputList, currentPosition) == false){
-        data currentData = list_inspect(outputList, currentPosition);
-        printf("%d:%s\n", ((passwordRecord*)currentData)->UID,
-               ((passwordRecord*)currentData)->username);
-        currentPosition = list_next(outputList, currentPosition);
+    listPosition currentPosition = listFirst(outputList);
+    while(listIsEnd(outputList, currentPosition) == false){
+        data currentData = listInspect(outputList, currentPosition);
+        printf("%d:%s\n", (int)((passwordRecord*)currentData)->UID,
+               (char*)((passwordRecord*)currentData)->username);
+        currentPosition = listNext(outputList, currentPosition);
     }
     // output last element
-    data currentData = list_inspect(outputList, currentPosition);
+    data currentData = listInspect(outputList, currentPosition);
     printf("%d:%s\n", ((passwordRecord*)currentData)->UID,
            ((passwordRecord*)currentData)->username);
 }
@@ -190,13 +191,16 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
     char* username;
     int UID;
     int rowError = 0;
+    int usernameAllocated = 0;
 
 
+    // check for blank line
     if(strlen(row) == 1){
         fprintf(stderr, "Line %d: Encountered a <BLANKLINE>\n", rowNumber);
         rowError = -1;
     }
 
+    // check if correct number of separators is there
     if(rowError == 0){
         if(checkNumberOfSeparators(row, separator) < 6){
             fprintf(stderr, "Line %d: Invalid format: %s\n", rowNumber, row);
@@ -204,7 +208,7 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
         }
     }
 
-
+    // check if username exists
     if(rowError == 0){
         if(checkForChar(row, separator)){
             fprintf(stderr, "Line %d: The username field cannot be empty.\n",
@@ -213,11 +217,9 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
         }
     }
 
-
+    // Check username length
     char*start = row;
     char*end = findSeparator(start, separator);
-
-    // check for the user name
     if (rowError == 0){
         result =  substring(start, end);
         if(strlen(result) > 32){
@@ -226,6 +228,7 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
             rowError = -1;
         } else {
             username = strdup(result);
+            usernameAllocated = 1;
         }
         free(result);
     }
@@ -305,7 +308,6 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
                     rowNumber);
             rowError = -1;
         }
-        //printf("%s\n", result);
         free(result);
     }
 
@@ -315,27 +317,33 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
         passwordRecord *insertionRecord = malloc(sizeof(passwordRecord) * 1);
         insertionRecord->username = username;
         insertionRecord->UID = UID;
-        if(list_isEmpty(passwdList)){
-            list_insert(passwdList, list_first(passwdList),
+        if(listIsEmpty(passwdList)){
+            listInsert(passwdList, listFirst(passwdList),
                         (data)insertionRecord);
         } else {
-            list_position current = list_previous(passwdList, list_first
+            listPosition current = listPrevious(passwdList, listFirst
                                                           (passwdList));
 
-            while(((passwordRecord*)list_inspect(passwdList, list_next
+            while(((passwordRecord*)listInspect(passwdList, listNext
                     (passwdList, current)))->UID < insertionRecord->UID) {
-                current = list_next(passwdList, current);
-                if (list_isEnd(passwdList, current)){
-                    list_insert(passwdList, current, (data)insertionRecord);
+                current = listNext(passwdList, current);
+                if (listIsEnd(passwdList, current)){
+                    listInsert(passwdList, current, (data)insertionRecord);
                     inserted = 1;
                     break;
                 }
             }
             if (inserted == 0){
-                list_insert(passwdList, current, (data)insertionRecord);
+                listInsert(passwdList, current, (data)insertionRecord);
             }
         }
     }
+
+    if(usernameAllocated == 1 && rowError == -1){
+        free(username);
+    }
+
+
     if (rowError == 0){
         return 1;
     }
@@ -356,15 +364,16 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
  */
 int main (int argc, char *argv[]){
 
-    list *passwdList = list_empty();
-    list_setMemHandler(passwdList, passwordRecordFree);
+
     char buffer[BUFFERSIZE];
     FILE *inStream = getInputStream(argc, argv);
+    list *passwdList = listEmpty();
+    listSetMemHandler(passwdList, passwordRecordFree);
     int successfulRows = 0;
     int processedRows = 0;
 
     /*
-     * Loopeing through stream input rows
+     * Looping through stream input rows
      */
     while(fgets(buffer, BUFFERSIZE, inStream)){
         processedRows++;
@@ -383,12 +392,12 @@ int main (int argc, char *argv[]){
     /*
      * Clean up
      */
-    list_free(passwdList);
+    listFree(passwdList);
     fclose(inStream);
 
     if (processedRows>successfulRows){
         exit(EXIT_FAILURE);
     }
-     exit(EXIT_SUCCESS);
+     return 0;
 
 }

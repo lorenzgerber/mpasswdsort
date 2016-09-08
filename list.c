@@ -10,12 +10,11 @@
  *
  */
 
-#include <stdio.h>
 #include "list.h"
 
 
 //create empty list, constructor
-list *list_empty(void) {
+list *listEmpty(void) {
     list *newList=malloc(sizeof(struct list));
     newList->head=malloc(sizeof(element)); //huvudet för listan
     newList->head->next=newList->head;
@@ -26,39 +25,39 @@ list *list_empty(void) {
 
 
 // set mem handler
-void list_setMemHandler(list *l, memFreeFunc *f){
+void listSetMemHandler(list *l, memFreeFunc *f){
     l->freeFunc=f;
 }
 
 
 // return first position
-list_position list_first(list *l){
+listPosition listFirst(list *l){
     return l->head->next;
 }
 
 // return last position
-list_position list_last(list *l){
+listPosition listLast(list *l){
     return l->head->previous;
 }
 
 // get next position
-list_position list_next(list *l, list_position p) {
+listPosition listNext(list *l, listPosition p) {
     return p->next;
 };
 
 // get previous position
-list_position list_previous(list *l, list_position p){
+listPosition listPrevious(list *l, listPosition p){
     return p->previous;
 };
 
 // is list empty
-bool list_isEmpty(list *l) {
+bool listIsEmpty(list *l) {
     return (l->head->next == l->head);
 }
 
 // insert list element
-list_position list_insert(list *l,list_position p,data d) {
-    list_position newPosition=malloc(sizeof(element));
+listPosition listInsert(list *l,listPosition p,data d) {
+    listPosition newPosition=malloc(sizeof(element));
     newPosition->data=d;
     newPosition->next=p->next;
     (p->next)->previous=newPosition;
@@ -69,13 +68,13 @@ list_position list_insert(list *l,list_position p,data d) {
 };
 
 // inspect list element
-data* list_inspect(list *l, list_position p) {
+data* listInspect(list *l, listPosition p) {
   return p->data;
 };
 
 // remove list element
-list_position list_remove(list *l, list_position p) {
-    list_position beforeRemove=p->previous;
+listPosition listRemove(list *l, listPosition p) {
+    listPosition beforeRemove=p->previous;
     p->previous->next=p->next;
     p->next->previous=p->previous;
     if(l->freeFunc!=NULL)
@@ -85,10 +84,10 @@ list_position list_remove(list *l, list_position p) {
 };
 
 // free memory
-void list_free(list *l){
-    list_position current = list_last(l);
-    while (list_isEmpty(l) != true){
-        current = list_remove(l, current);
+void listFree(list *l){
+    listPosition current = listLast(l);
+    while (listIsEmpty(l) != true){
+        current = listRemove(l, current);
     }
     free(l->head);
     free(l);
@@ -97,7 +96,7 @@ void list_free(list *l){
 
 
 // check if end of list
-bool list_isEnd(list *l, list_position p){
+bool listIsEnd(list *l, listPosition p){
   if ( p->next == l->head) {
     return true;
   } else {

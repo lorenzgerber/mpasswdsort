@@ -26,7 +26,7 @@ typedef struct element {
     struct element *next;
 } element;
 
-typedef element * list_position;
+typedef element * listPosition;
 
 // head for a double linked list
 typedef struct list {
@@ -37,41 +37,39 @@ typedef struct list {
 
 
 //create empty list, constructor
-list *list_empty(void);
+list *listEmpty(void);
 
 
 // set mem handler
-void list_setMemHandler(list *l, memFreeFunc *f);
+void listSetMemHandler(list *l, memFreeFunc *f);
 
 
 // return first position
-list_position list_first(list *l);
+listPosition listFirst(list *l);
 
 // reutrn last position
-list_position list_last(list *l);
+listPosition listLast(list *l);
 
 // get next position
-list_position list_next(list *l, list_position p);
+listPosition listNext(list *l, listPosition p);
 
 // get previous position
-list_position list_previous(list *l, list_position p);
+listPosition listPrevious(list *l, listPosition p);
 
 // is list empty
-bool list_isEmpty(list *l);
+bool listIsEmpty(list *l);
 
 // insert list element
-list_position list_insert(list *l,list_position p,data d);
+listPosition listInsert(list *l,listPosition p,data d);
 
 // inspect list element
-data* list_inspect(list *l, list_position p);
+data* listInspect(list *l, listPosition p);
 
 // remove list element
-list_position list_remove(list *l, list_position p);
+listPosition listRemove(list *l, listPosition p);
 
 // free memory
-void list_free(list *l);
-
-
+void listFree(list *l);
 
 // check if end of list
-bool list_isEnd(list *l, list_position p);
+bool listIsEnd(list *l, listPosition p);
