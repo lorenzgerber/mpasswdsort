@@ -21,19 +21,31 @@ typedef struct passwordRecord {
 
 #define BUFFERSIZE 1023
 
-
 /*
+ * passwordRecordFree
+ *
  * function to free the allocated memory
+ * in a passwordRecord
+ *
+ * recordToFree: Pointer to a passwordRecord struct
  */
-void passwordRecord_free(void *recordToFree){
+void passwordRecordFree(void *recordToFree){
     passwordRecord *record = (passwordRecord*)recordToFree;
     free(record->username);
     free(record);
 }
 
-
 /*
- * Opens either a file or stdin for reading
+ * getInputStream
+ *
+ * helper function used to determine if a file or stdin
+ * is used as input.
+ *
+ * argc: number of command line arguments vom main program
+ * argv: command line arguments from main
+ *
+ * FILE: input stream, either from file or stdin
+ *
  */
 FILE* getInputStream(int argc, char *argv[]){
     if(argc ==1){
@@ -60,7 +72,14 @@ FILE* getInputStream(int argc, char *argv[]){
 }
 
 /*
- * Checks if the current char is separator or not. *Obsolete/overkill*
+ * checkForChar
+ *
+ * Checks if the current char is separator or not.
+ *
+ * current: pointer to a char to check for separator
+ * char:    check for this char
+ *
+ * bool: returns true if separator is found on current
  */
 bool checkForChar(char* current, char* separator){
     char *found = strstr(current, separator);
@@ -71,7 +90,15 @@ bool checkForChar(char* current, char* separator){
 }
 
 /*
- * returns the next position of the separator in current
+ * find Separator
+ *
+ * Takes a string pointer and returns the position of the next spearator char
+ *
+ * current:     pointer to string
+ * separator:   pointer to separator char to check for
+ *
+ * pos:         returns either a pointer to the next separator or the end of
+ * the string
  */
 char* findSeparator(char* current, char*separator){
     char* pos = strstr(current, separator);
@@ -82,19 +109,35 @@ char* findSeparator(char* current, char*separator){
 }
 
 /*
+ * substring
+ *
  * returns a pointer to the copy of substring from start to end
+ *
+ * start:   pointer to start of string to extract
+ * end:     pointer to end of string to extract
+ *
+ * return: pointer to malloc allocated, extracted string
  */
 char* substring(char* start, char* end){
     int length = 0;
     while (end > start){
         end -= 1;
         length++;
-        //printf("%d\n", length);
     }
 
     return strndup(start, length);
 }
 
+/*
+ * checkNumberOfSeparators
+ *
+ * determines how many separators occur in the current string
+ *
+ * string:      pointer to string to search for separators
+ * separator:   pointer to char to search for in string
+ *
+ * counter:     number of separators found
+ */
 int checkNumberOfSeparators(char* string, char*separator){
     int counter = 0;
     char*current = string;
@@ -105,6 +148,15 @@ int checkNumberOfSeparators(char* string, char*separator){
     return counter;
 }
 
+
+/*
+ * listToStdOut
+ *
+ * function to traverse a list and output it's content to stdout
+ *
+ * outputList:  list to be traversed and it's content written to stdout
+ *
+ */
 void listToStdOut(list *outputList){
     list_position currentPosition = list_first(outputList);
     while(list_isEnd(outputList, currentPosition) == false){
@@ -120,7 +172,19 @@ void listToStdOut(list *outputList){
 }
 
 
-int checkIndata(char* row, list* passwdList) {
+/*
+ * checkIndata
+ *
+ * function that takes a string as input and checks whether it is according
+ * to the set up rules for a UNIX passwd file
+ *
+ * row:         string to be checked
+ * passwdList:  list to which the input shall be inserted
+ * rowNumber:   used for output to stderr
+ *
+ * return:      returns 1 if the row was processed without error
+ */
+int checkIndata(char* row, list* passwdList, int rowNumber) {
     char* separator = ":";
     char* result;
     char* username;
@@ -128,14 +192,23 @@ int checkIndata(char* row, list* passwdList) {
     int rowError = 0;
 
 
-    if(checkNumberOfSeparators(row, separator) < 6){
-        fprintf(stderr, "wrong structure\n");
+    if(strlen(row) == 1){
+        fprintf(stderr, "Line %d: Encountered a <BLANKLINE>\n", rowNumber);
         rowError = -1;
     }
 
     if(rowError == 0){
+        if(checkNumberOfSeparators(row, separator) < 6){
+            fprintf(stderr, "Line %d: Invalid format: %s\n", rowNumber, row);
+            rowError = -1;
+        }
+    }
+
+
+    if(rowError == 0){
         if(checkForChar(row, separator)){
-            fprintf(stderr, "username is missing\n");
+            fprintf(stderr, "Line %d: The username field cannot be empty.\n",
+                    rowNumber);
             rowError = -1;
         }
     }
@@ -148,12 +221,12 @@ int checkIndata(char* row, list* passwdList) {
     if (rowError == 0){
         result =  substring(start, end);
         if(strlen(result) > 32){
-            fprintf(stderr, "username too long\n");
+            fprintf(stderr, "Line %d: The username is too long, max 32 "
+                            "chars\n", rowNumber);
             rowError = -1;
         } else {
             username = strdup(result);
         }
-        //printf("%s\n", result);
         free(result);
     }
 
@@ -164,10 +237,10 @@ int checkIndata(char* row, list* passwdList) {
         end = findSeparator(start, separator);
         result =  substring(start, end);
         if(strlen(result) == 0){
-            fprintf(stderr, "password is empty\n");
+            fprintf(stderr, "Line %d: The password field cannot be empty\n",
+                    rowNumber);
             rowError = -1;
         }
-        //printf("%s\n", result);
         free(result);
     }
 
@@ -178,12 +251,16 @@ int checkIndata(char* row, list* passwdList) {
         result =  substring(start, end);
         long test = strtol(result, NULL, 10);
         if(test < 0){
-            fprintf(stderr, "negativ UID value\n");
+            fprintf(stderr, "Line %d: UID has to be a positive number. "
+                    "Got \"%s\"\n", rowNumber, result);
+            rowError = -1;
+        } else if ( test == 0) {
+            fprintf(stderr, "Line %d: UID has to be a number. Got \"%s\"\n",
+                    rowNumber, result);
             rowError = -1;
         } else {
             UID = test;
         }
-        //printf("%ld\n", test);
         free(result);
     }
 
@@ -194,25 +271,16 @@ int checkIndata(char* row, list* passwdList) {
         result =  substring(start, end);
         long test = strtol(result, NULL, 10);
         if(test < 0){
-            fprintf(stderr, "negativ GID value\n");
+            fprintf(stderr, "Line %d: GID has to be a positive number. Got "
+                    "\"%s\"\n", rowNumber, result);
+            rowError = -1;
+        } else if( test == 0){
+            fprintf(stderr, "Line %d: GID has to be a number. Got \"%s\"\n",
+                    rowNumber, result);
             rowError = -1;
         }
-        //printf("%s\n", result);
         free(result);
     }
-
-
-    // not needed when checked first for
-    // correct number of separators
-    if(rowError == 0){
-        start = end + 1;
-        end = findSeparator(start, separator);
-        result =  substring(start, end);
-        //printf("%s\n", result);
-        free(result);
-    }
-
-
 
     // check if path is empty
     if (rowError == 0){
@@ -220,10 +288,10 @@ int checkIndata(char* row, list* passwdList) {
         end = findSeparator(start, separator);
         result =  substring(start, end);
         if(strlen(result) == 0){
-            fprintf(stderr, "path is empty\n");
+            fprintf(stderr, "Line %d: The path filed cannot be empty.\n",
+                    rowNumber);
             rowError = -1;
         }
-        //printf("%s\n", result);
         free(result);
     }
 
@@ -233,7 +301,8 @@ int checkIndata(char* row, list* passwdList) {
         end = findSeparator(start, separator);
         result =  substring(start, end);
         if(strlen(result) == 0){
-            fprintf(stderr, "shell is empty\n");
+            fprintf(stderr, "Line %d: The shell field cannot be empty.\n",
+                    rowNumber);
             rowError = -1;
         }
         //printf("%s\n", result);
@@ -242,7 +311,7 @@ int checkIndata(char* row, list* passwdList) {
 
     // insertion sort into list
     if(rowError == 0){
-        //printf("%s:%d\n", username, UID);
+        int inserted = 0;
         passwordRecord *insertionRecord = malloc(sizeof(passwordRecord) * 1);
         insertionRecord->username = username;
         insertionRecord->UID = UID;
@@ -250,21 +319,22 @@ int checkIndata(char* row, list* passwdList) {
             list_insert(passwdList, list_first(passwdList),
                         (data)insertionRecord);
         } else {
-            list_position current = list_first(passwdList);
-            while(((passwordRecord*)list_inspect(passwdList, current))->UID >
-                    insertionRecord->UID){
-             current = list_next(passwdList, current);
-                // have to improve that one...
-                if(current == list_previous(passwdList,
-                                            list_first(passwdList))){
+            list_position current = list_previous(passwdList, list_first
+                                                          (passwdList));
+
+            while(((passwordRecord*)list_inspect(passwdList, list_next
+                    (passwdList, current)))->UID < insertionRecord->UID) {
+                current = list_next(passwdList, current);
+                if (list_isEnd(passwdList, current)){
+                    list_insert(passwdList, current, (data)insertionRecord);
+                    inserted = 1;
                     break;
                 }
             }
-            list_insert(passwdList, current, (data)insertionRecord);
-
+            if (inserted == 0){
+                list_insert(passwdList, current, (data)insertionRecord);
+            }
         }
-
-
     }
     if (rowError == 0){
         return 1;
@@ -274,28 +344,51 @@ int checkIndata(char* row, list* passwdList) {
 
 
 
-
+/*
+ * mpasswdsort
+ *
+ * Program to validate, sort and output UNIX passwd files
+ *
+ * Usage: a passwd file can be entered as commandline argument.
+ * Alternatively, the passwd file can also be fed in through stdin
+ *
+ * 
+ */
 int main (int argc, char *argv[]){
 
     list *passwdList = list_empty();
-    list_setMemHandler(passwdList, passwordRecord_free);
+    list_setMemHandler(passwdList, passwordRecordFree);
     char buffer[BUFFERSIZE];
     FILE *inStream = getInputStream(argc, argv);
-    int successfulRows;
-    int processedRows;
+    int successfulRows = 0;
+    int processedRows = 0;
 
+    /*
+     * Loopeing through stream input rows
+     */
     while(fgets(buffer, BUFFERSIZE, inStream)){
         processedRows++;
-        //printf("%s", buffer);
-        successfulRows = successfulRows + checkIndata(buffer, passwdList);
+        successfulRows = successfulRows + checkIndata(buffer, passwdList,
+                                                      processedRows);
     }
 
+    /*
+     * Data output to Stdout
+     */
     if (successfulRows > 0){
         listToStdOut(passwdList);
     }
 
-    list_free(passwdList);
 
+    /*
+     * Clean up
+     */
+    list_free(passwdList);
     fclose(inStream);
-    
+
+    if (processedRows>successfulRows){
+        exit(EXIT_FAILURE);
+    }
+     exit(EXIT_SUCCESS);
+
 }
