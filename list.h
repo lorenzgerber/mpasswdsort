@@ -1,3 +1,15 @@
+/*
+ * list.h
+ *
+ * Lorenz Gerber
+ *
+ * Laboration 1, Course 'System-level programming', HT16
+ *
+ * header file for implementation of a double linked list using
+ * generic/void data fields.
+ *
+ */
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>

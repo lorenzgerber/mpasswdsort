@@ -1,3 +1,14 @@
+/*
+ * mpasswdsort.c
+ *
+ * Lorenz Gerber
+ * Laboration 1, Course 'System-level Programming' HT16
+ *
+ * This file contains the main() for a program to read unix 'passwd' files,
+ * validate their content, store username and UID in a list and, sort the
+ * list content and output it to standard out.
+ */
+
 #include <stdio.h>
 #include "list.h"
 #include <string.h>
@@ -36,7 +47,8 @@ FILE* getInputStream(int argc, char *argv[]){
             fseek(inFile, 0, SEEK_END);
             unsigned long len = (unsigned long)ftell(inFile);
             rewind(inFile);
-            // six separators would be need at least to proceed and fail in the further checks
+            // six separators would be need at least to
+            // proceed and fail in the further checks
             if(len < 6) {
                 fclose(inFile);
                 exit(0);
@@ -97,12 +109,14 @@ void listToStdOut(list *outputList){
     list_position currentPosition = list_first(outputList);
     while(list_isEnd(outputList, currentPosition) == false){
         data currentData = list_inspect(outputList, currentPosition);
-        printf("%d:%s\n", ((passwordRecord*)currentData)->UID, ((passwordRecord*)currentData)->username);
+        printf("%d:%s\n", ((passwordRecord*)currentData)->UID,
+               ((passwordRecord*)currentData)->username);
         currentPosition = list_next(outputList, currentPosition);
     }
     // output last element
     data currentData = list_inspect(outputList, currentPosition);
-    printf("%d:%s\n", ((passwordRecord*)currentData)->UID, ((passwordRecord*)currentData)->username);
+    printf("%d:%s\n", ((passwordRecord*)currentData)->UID,
+           ((passwordRecord*)currentData)->username);
 }
 
 
@@ -233,13 +247,16 @@ int checkIndata(char* row, list* passwdList) {
         insertionRecord->username = username;
         insertionRecord->UID = UID;
         if(list_isEmpty(passwdList)){
-            list_insert(passwdList, list_first(passwdList),(data)insertionRecord);
+            list_insert(passwdList, list_first(passwdList),
+                        (data)insertionRecord);
         } else {
             list_position current = list_first(passwdList);
-            while(((passwordRecord*)list_inspect(passwdList, current))->UID > insertionRecord->UID){
+            while(((passwordRecord*)list_inspect(passwdList, current))->UID >
+                    insertionRecord->UID){
              current = list_next(passwdList, current);
                 // have to improve that one...
-                if(current == list_previous(passwdList, list_first(passwdList))){
+                if(current == list_previous(passwdList,
+                                            list_first(passwdList))){
                     break;
                 }
             }
@@ -280,8 +297,5 @@ int main (int argc, char *argv[]){
     list_free(passwdList);
 
     fclose(inStream);
-
-
-
-
+    
 }
