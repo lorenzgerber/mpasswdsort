@@ -53,7 +53,8 @@ FILE* getInputStream(int argc, char *argv[]){
     } else if (argc == 2) {
         FILE * inFile = fopen(argv[1], "r");
         if ( !inFile ){
-            fprintf(stderr, "File could not be opended\n");
+            perror(argv[1]);
+            exit(EXIT_FAILURE);
         } else {
 
             fseek(inFile, 0, SEEK_END);
@@ -63,7 +64,6 @@ FILE* getInputStream(int argc, char *argv[]){
             // proceed and fail in the further checks
             if(len < 6) {
                 fclose(inFile);
-
                 exit(0);
             }
         };
@@ -252,12 +252,13 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
         start = end + 1;
         end = findSeparator(start, separator);
         result =  substring(start, end);
-        long test = strtol(result, NULL, 10);
+        char *rest = NULL;
+        long test = strtol(result, &rest, 10);
         if(test < 0){
             fprintf(stderr, "Line %d: UID has to be a positive number. "
                     "Got \"%s\"\n", rowNumber, result);
             rowError = -1;
-        } else if ( test == 0) {
+        } else if ( *rest != 0) {
             fprintf(stderr, "Line %d: UID has to be a number. Got \"%s\"\n",
                     rowNumber, result);
             rowError = -1;
@@ -272,12 +273,13 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
         start = end + 1;
         end = findSeparator(start, separator);
         result =  substring(start, end);
-        long test = strtol(result, NULL, 10);
+        char *rest = NULL;
+        long test = strtol(result, &rest, 10);
         if(test < 0){
             fprintf(stderr, "Line %d: GID has to be a positive number. Got "
                     "\"%s\"\n", rowNumber, result);
             rowError = -1;
-        } else if( test == 0){
+        } else if( *rest != 0){
             fprintf(stderr, "Line %d: GID has to be a number. Got \"%s\"\n",
                     rowNumber, result);
             rowError = -1;
