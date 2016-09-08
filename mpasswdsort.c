@@ -234,10 +234,11 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
     }
 
 
-    // check if there is a password entry
+    // step through the password
     if (rowError == 0){
         start = end + 1;
         end = findSeparator(start, separator);
+        /*
         result =  substring(start, end);
         if(strlen(result) == 0){
             fprintf(stderr, "Line %d: The password field cannot be empty\n",
@@ -245,6 +246,7 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
             rowError = -1;
         }
         free(result);
+         */
     }
 
 
@@ -285,6 +287,21 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
             rowError = -1;
         }
         free(result);
+    }
+
+    // go through GECOS
+    if (rowError == 0){
+        start = end + 1;
+        end = findSeparator(start, separator);
+        /*
+        result =  substring(start, end);
+        if(strlen(result) == 0){
+            fprintf(stderr, "Line %d: The path filed cannot be empty.\n",
+                    rowNumber);
+            rowError = -1;
+        }
+        free(result);
+         */
     }
 
     // check if path is empty
