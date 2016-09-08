@@ -238,15 +238,6 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
     if (rowError == 0){
         start = end + 1;
         end = findSeparator(start, separator);
-        /*
-        result =  substring(start, end);
-        if(strlen(result) == 0){
-            fprintf(stderr, "Line %d: The password field cannot be empty\n",
-                    rowNumber);
-            rowError = -1;
-        }
-        free(result);
-         */
     }
 
 
@@ -274,7 +265,7 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
     if(rowError == 0){
         start = end + 1;
         end = findSeparator(start, separator);
-        result =  substring(start, end);
+        result = substring(start, end);
         char *rest = NULL;
         long test = strtol(result, &rest, 10);
         if(test < 0){
@@ -293,15 +284,6 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
     if (rowError == 0){
         start = end + 1;
         end = findSeparator(start, separator);
-        /*
-        result =  substring(start, end);
-        if(strlen(result) == 0){
-            fprintf(stderr, "Line %d: The path filed cannot be empty.\n",
-                    rowNumber);
-            rowError = -1;
-        }
-        free(result);
-         */
     }
 
     // check if path is empty
@@ -379,7 +361,6 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
  * Usage: a passwd file can be entered as commandline argument.
  * Alternatively, the passwd file can also be fed in through stdin
  *
- * 
  */
 int main (int argc, char *argv[]){
 
