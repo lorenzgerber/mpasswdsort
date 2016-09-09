@@ -16,7 +16,13 @@
 //create empty list, constructor
 list *listEmpty(void) {
     list *newList=malloc(sizeof(struct list));
-    newList->head=malloc(sizeof(element)); //huvudet för listan
+    if(newList == NULL){
+        perror("list memory allocation\n");
+    }
+    newList->head=malloc(sizeof(element));
+    if(newList->head == NULL){
+        perror("list head memory allocation\n");
+    }
     newList->head->next=newList->head;
     newList->head->previous=newList->head;
     newList->freeFunc=NULL;
@@ -58,6 +64,9 @@ bool listIsEmpty(list *l) {
 // insert list element
 listPosition listInsert(list *l,listPosition p,data d) {
     listPosition newPosition=malloc(sizeof(element));
+    if(newPosition == NULL){
+        perror("Memory allocation for new list element\n");
+    }
     newPosition->data=d;
     newPosition->next=p->next;
     (p->next)->previous=newPosition;

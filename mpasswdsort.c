@@ -63,7 +63,8 @@ FILE* getInputStream(int argc, char *argv[]){
             // six separators would be need at least to
             // proceed and fail in the further checks
             if(len < 6) {
-                fclose(inFile);
+                if(fclose(inFile) != 0)
+                    perror(argv[1]);
                 exit(0);
             }
         };
@@ -126,7 +127,11 @@ char* substring(char* start, char* end){
         length++;
     }
 
-    return strndup(start, length);
+    char * extracted = strndup(start, length);
+    if (extracted == NULL){
+        perror(start);
+    }
+    return extracted;
 }
 
 /*
@@ -228,6 +233,9 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
             rowError = -1;
         } else {
             username = strdup(result);
+            if (username == NULL){
+                perror(result);
+            }
             usernameAllocated = 1;
         }
         free(result);
@@ -316,6 +324,9 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
     if(rowError == 0){
         int inserted = 0;
         passwordRecord *insertionRecord = malloc(sizeof(passwordRecord) * 1);
+        if (insertionRecord == NULL){
+            perror("Memory allocation of record to insert in list\n");
+        }
         insertionRecord->username = username;
         insertionRecord->UID = UID;
         if(listIsEmpty(passwdList)){
