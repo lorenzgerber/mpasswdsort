@@ -9,17 +9,8 @@
  * list content and output it to standard out.
  */
 
-#include <stdio.h>
-#include "list.h"
-#include <string.h>
+#include "mpasswdsort.h"
 
-
-typedef struct passwordRecord {
-    char* username;
-    unsigned int UID;
-} passwordRecord;
-
-#define BUFFERSIZE 1023
 
 /*
  * passwordRecordFree
@@ -166,13 +157,13 @@ int checkNumberOfSeparators(char* string, char*separator){
 void listToStdOut(list *outputList){
     listPosition currentPosition = listFirst(outputList);
     while(listIsEnd(outputList, currentPosition) == false){
-        data currentData = listInspect(outputList, currentPosition);
+        data currentData = listInspect(currentPosition);
         printf("%d:%s\n", (int)((passwordRecord*)currentData)->UID,
                (char*)((passwordRecord*)currentData)->username);
-        currentPosition = listNext(outputList, currentPosition);
+        currentPosition = listNext(currentPosition);
     }
     // output last element
-    data currentData = listInspect(outputList, currentPosition);
+    data currentData = listInspect(currentPosition);
     printf("%d:%s\n", ((passwordRecord*)currentData)->UID,
            ((passwordRecord*)currentData)->username);
 }
@@ -330,23 +321,21 @@ int checkIndata(char* row, list* passwdList, int rowNumber) {
         insertionRecord->username = username;
         insertionRecord->UID = UID;
         if(listIsEmpty(passwdList)){
-            listInsert(passwdList, listFirst(passwdList),
-                        (data)insertionRecord);
+            listInsert(listFirst(passwdList), (data)insertionRecord);
         } else {
-            listPosition current = listPrevious(passwdList, listFirst
-                                                          (passwdList));
+            listPosition current = listPrevious(listFirst (passwdList));
 
-            while(((passwordRecord*)listInspect(passwdList, listNext
-                    (passwdList, current)))->UID < insertionRecord->UID) {
-                current = listNext(passwdList, current);
+            while(((passwordRecord*)listInspect(listNext(current)))->UID <
+                    insertionRecord->UID) {
+                current = listNext(current);
                 if (listIsEnd(passwdList, current)){
-                    listInsert(passwdList, current, (data)insertionRecord);
+                    listInsert(current, (data)insertionRecord);
                     inserted = 1;
                     break;
                 }
             }
             if (inserted == 0){
-                listInsert(passwdList, current, (data)insertionRecord);
+                listInsert(current, (data)insertionRecord);
             }
         }
     }

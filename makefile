@@ -4,10 +4,10 @@ CFLAGS= -Wall -std=c11 -Wextra -Werror -Wmissing-declarations -Wmissing-prototyp
 all: mpasswdsort
 
 mpasswdsort: mpasswdsort.o list.o
-	$(CC) -o mpasswdsort mpasswdsort.o list.o
+	$(CC) $(CLFAGS) -o mpasswdsort mpasswdsort.o list.o
 
 mpasswdsort.o list.o: mpasswdsort.c list.c list.h
-	$(CC) -c -g mpasswdsort.c list.c
+	$(CC) $(CFLAGS) -c -g mpasswdsort.c list.c
 
 clean:
 	 rm -f rm mpasswdsort *.o

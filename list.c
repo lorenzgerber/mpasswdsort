@@ -47,12 +47,12 @@ listPosition listLast(list *l){
 }
 
 // get next position
-listPosition listNext(list *l, listPosition p) {
+listPosition listNext(listPosition p) {
     return p->next;
 };
 
 // get previous position
-listPosition listPrevious(list *l, listPosition p){
+listPosition listPrevious(listPosition p){
     return p->previous;
 };
 
@@ -62,7 +62,7 @@ bool listIsEmpty(list *l) {
 }
 
 // insert list element
-listPosition listInsert(list *l,listPosition p,data d) {
+listPosition listInsert(listPosition p,data d) {
     listPosition newPosition=malloc(sizeof(element));
     if(newPosition == NULL){
         perror("Memory allocation for new list element\n");
@@ -77,7 +77,7 @@ listPosition listInsert(list *l,listPosition p,data d) {
 };
 
 // inspect list element
-data* listInspect(list *l, listPosition p) {
+data* listInspect(listPosition p) {
   return p->data;
 };
 
