@@ -18,10 +18,12 @@ list *listEmpty(void) {
     list *newList=malloc(sizeof(struct list));
     if(newList == NULL){
         perror("list memory allocation\n");
+        exit(EXIT_FAILURE);
     }
     newList->head=malloc(sizeof(element));
     if(newList->head == NULL){
         perror("list head memory allocation\n");
+        exit(EXIT_FAILURE);
     }
     newList->head->next=newList->head;
     newList->head->previous=newList->head;
@@ -66,6 +68,7 @@ listPosition listInsert(listPosition p,data d) {
     listPosition newPosition=malloc(sizeof(element));
     if(newPosition == NULL){
         perror("Memory allocation for new list element\n");
+        exit(EXIT_FAILURE);
     }
     newPosition->data=d;
     newPosition->next=p->next;
